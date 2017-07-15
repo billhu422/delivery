@@ -1,0 +1,31 @@
+{
+  "name": "delivery",
+  "version": "1.0.0",
+  "description": "delivery cloud production from qcloud or aliyun ...",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billhu422/delivery.git"
+  },
+  "keywords": [
+    "cloud"
+  ],
+  "author": "huxiaowei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/billhu422/delivery/issues"
+  },
+  "homepage": "https://github.com/billhu422/delivery#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.3",
+    "express-session": "^1.15.3",
+    "morgan": "^1.8.2",
+    "object-assign": "^4.1.1",
+    "request": "^2.81.0"
+  }
+}
