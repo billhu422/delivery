@@ -5,6 +5,7 @@ var OAuth2 = require('./oauth2').OAuth2
 var express = require('express')
 var qcloud = require('./qcloud');
 var aliyun = require('./aliyun');
+var  http = require('http');
 
 var app = express();
 
@@ -46,6 +47,10 @@ app.use('/v1/hybrid/*',function(req, res, next){
 app.use('/v1/hybrid/qcloud',qcloud);
 app.use('/v1/hybrid/aliyun',aliyun);
 
+http.globalAgent.maxSockets = Infinity;
 var server = app.listen(3000,function(){
 	console.log("listening in " + server.address().address + ":" + server.address().port);
 });
+//handle qcloud/function CONNRESET  error
+//reference:http://www.cnblogs.com/lienhua34/p/6057662.html
+server.setTimeout(0);
