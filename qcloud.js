@@ -70,10 +70,73 @@ router.post('/bgpip/checkCreate',function(req,resp){
 
 				});
      });
-});
- 
+}); 
+router.post('/bipip/create',function(req,resp){
+    console.log(req.body);
+    var access_token = req.get('Authorization').split(" ")[1];
+    var url = config.oauth.account_server + '/user';
+    //1. validte customer access token 
+    oauth_client.get(url, access_token,function(e,response){
+    console.log(JSON.stringify(response,4,4));
+        if(e) {resp.send(e);return;}
+        console.log('Retrieving userid...');
+        if(JSON.parse(response).id == undefined ) {resp.send('{"code" : -1,"description" : "not found user id from idm with access_token"}');return;}
+        //1.0 retrieve userid with access_token
+        var userId = response.id;
 
-router.post('/bgpip/create',function(req,resp){
+        //1.1 retrieve order info(orderItemId,order related partyid, order status)
+        console.log('Retrieve order info...');
+        var orderId = req.body.orderId;
+        var orderItemId;
+        var partyId;
+        var provider;
+        var productName;
+        var orderStatus;
+        var options = {
+                //relatedParty.id=yangrui&&relatedParty.role=Customer
+                url: config.eco.baseUrl + config.eco.orderPath + "/?id=" + idorderId + "&relatedParty.id=" + userId + "&relatedParty.role=Customer",
+                headers: {
+                        'Authorization': req.get('Authorization')
+                }
+        };
+
+       request(options,function(error,response,body){ 
+                var order = JSON.parse(body);
+                if(order.id == undefined) {resp.send('{"code" : -2,"description" : "Not found order."}');return;}
+ 	        
+                //validate pay status
+	        for(note in order.notes) {
+                        if(note.text == "Paid") {orderStatus = note.text; break;}
+                }
+                if(orderStatus != "Paid") {resp.send('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');return;}
+	
+		//delivery instances
+		for(item in orderItem){
+		//delivery successful Acknowledged,	InProgress -> Completed
+                //failed ->hold
+			//retrieve itemUserId
+			for(itemParty in item.relatedParty){
+				if(itemParty.role == "Customer") { itemPartyId = itemParty.id; break;} 
+			}
+		
+			if(itemPartyId == undefined) {resp.send('{"code":-4,"description":"Cannot found itemPartyId"}');continue;}
+                         
+                        var provider = item.product.productCharacteristic.filter(function(x){return x.name=="provider"}).value;		        
+                        var productName = item.product.productCharacteristic.filter(function(x){return x.name=="productname"}).value;
+                        
+                        	
+                }
+			
+		
+                 
+       });
+
+
+    });
+
+
+});
+router.post('/bgpip/create1',function(req,resp){
     console.log(req.body);
     var access_token = req.get('Authorization').split(" ")[1];
     var url = config.oauth.account_server + '/user';
