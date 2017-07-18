@@ -4,7 +4,9 @@ config.oauth = {
     account_server: 'http://124.251.62.217:8000',
     client_id: '9c9bca6d26234ff98fb93df3e3d065c5',
     client_secret: 'e1396a545ace426a941c0edfd3403d0f',
-    grant_type : 'client_credentials',
+    grant_type : 'password',
+    username : 'laoguo.cn@gmail.com',
+    password: '12345',
 };
 
 config.eco = {
