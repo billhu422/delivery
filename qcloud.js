@@ -196,7 +196,21 @@ router.post('/bgpip/create',function(req,resp){
 					var adminAccessToken = JSON.parse(body).access_token;
 					console.log("adminAccessToken = " + adminAccessToken);
                                         if(error) {resp.send(error);
-						//update order status to hold
+						//update order status to Held
+                                                                item.state = "Held";
+                                                                console.log(JSON.stringify(item));
+                                                                var options = {
+                                                                        headers: {'content-type' : 'application/json','Authorization': 'Bearer ' + adminAccessToken},
+                                                                        url: config.eco.baseUrl + config.eco.orderPath + "/" + orderId,
+                                                                        body:    '{ "orderItem":[' + JSON.stringify(item) + ']}'
+                                                                        }
+                                                                console.log(options);
+                                                                request.patch(options, function(patchordererr, response, body){
+                                                                                console.log("xxx");
+                                                                                console.log(body);
+                                                                                if(patchordererr){ resp.send(patchordererr);return; }
+                                                                                resp.send('{"code":-5,description:"Retreive adminAccessToken Error"');
+                                                                        });
 					}
 					else{
 						//write db
@@ -207,7 +221,19 @@ router.post('/bgpip/create',function(req,resp){
                                                 }, function(writedberr, response, body){
 							if(writedberr) {resp.send(writedberr);
 								//update order status to hold	
-								
+                                                                item.state = "Held";
+                                                                console.log(JSON.stringify(item));
+                                                                var options = {
+                                                                        headers: {'content-type' : 'application/json','Authorization': 'Bearer ' + adminAccessToken},
+                                                                        url: config.eco.baseUrl + config.eco.orderPath + "/" + orderId,
+                                                                        body:    '{ "orderItem":[' + JSON.stringify(item) + ']}'
+                                                                        }
+                                                                console.log(options);
+                                                                request.patch(options, function(patchordererr, response, body){
+                                                                                console.log(body);
+                                                                                if(patchordererr){ resp.send(patchordererr);return; }
+                                                                                resp.send('{"code":-6,"description":"Write instance to inventory database failed"');
+                                                                        });								
 							}
 							else {
 								//update order status to completed
@@ -221,10 +247,10 @@ router.post('/bgpip/create',function(req,resp){
                                                                         }
 								console.log(options);
 								request.patch(options, function(patchordererr, response, body){
-									        console.log("xxx");	
 										console.log(body);
 										if(patchordererr){ resp.send(patchordererr);return; } 	
-										resp.send('{"code":0,"instanceIds":[" 005 "]}');	
+										if(JSON.parse(body).error != undefined){resp.send(body);return;}
+										resp.send('{"code":0}');	
 									});
 							}
                                                 });
@@ -233,7 +259,8 @@ router.post('/bgpip/create',function(req,resp){
                        		});    	
 			
 		});
-       });
+       		
+	   });
     });
 });
 

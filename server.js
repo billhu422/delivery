@@ -6,6 +6,8 @@ var express = require('express')
 var qcloud = require('./qcloud');
 var aliyun = require('./aliyun');
 var  http = require('http');
+var request = require('request');
+var querystring = require('querystring');
 
 var app = express();
 
@@ -46,6 +48,35 @@ app.use('/v1/hybrid/*',function(req, res, next){
 
 app.use('/v1/hybrid/qcloud',qcloud);
 app.use('/v1/hybrid/aliyun',aliyun);
+
+app.get('/v1/hybrid/instance',function(req, res){
+    var access_token = req.get('Authorization').split(" ")[1];
+    var url = config.oauth.account_server + '/user';
+    oauth_client.get(url, access_token,function(e,response){
+	if(e) {res.send(e);return;}
+	var userId = JSON.parse(response).id;
+	if(userId == undefined ) {resp.send('{"code" : -1,"description" : "not found user id from idm with access_token"}');return;}
+	request.get({
+		headers: {'content-type' : 'application/json'},
+		url:     config.dbRest.baseUrl + '/inventory/instance?userId=' + userId + "&" + querystring.stringify(req.query),
+		}, function(writedberr, response, body){
+			var instances=[]
+			JSON.parse(body).forEach(function(el){
+				var item = {
+						"orderId": el.orderId,
+						"orderItemId": el.orderItemId,
+						"userId": el.userId,
+						"provider":el.provider,
+						"productName":el.productName,
+						"instanceId":el.instanceId
+				}
+
+				instances.push(item);
+			});
+			res.send('{"code":0,"instances":['+ JSON.stringify(instances)   +  ']}');
+		});
+       });
+});
 
 http.globalAgent.maxSockets = Infinity;
 var server = app.listen(3000,function(){
