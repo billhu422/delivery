@@ -217,7 +217,7 @@ router.post('/bgpip/create',function(req,resp){
                                          request.post({
                                                 headers: {'content-type' : 'application/x-www-form-urlencoded'},
                                                 url:     config.dbRest.baseUrl + '/inventory/instance',
-                                                form:    {'orderId':orderId,'orderItemId':item.id,'userId':itemPartyId,'provider':provider,'productName':productName,'instanceId':'006'}
+                                                form:    {'orderId':orderId,'orderItemId':item.id,'userId':itemPartyId,'provider':provider,'productName':productName,'instanceId':'006','region':regionValue}
                                                 }, function(writedberr, response, body){
 							if(writedberr) {resp.send(writedberr);
 								//update order status to hold	

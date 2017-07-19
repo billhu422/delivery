@@ -68,7 +68,8 @@ app.get('/v1/hybrid/instance',function(req, res){
 						"userId": el.userId,
 						"provider":el.provider,
 						"productName":el.productName,
-						"instanceId":el.instanceId
+						"instanceId":el.instanceId,
+						"region":el.region
 				}
 
 				instances.push(item);
