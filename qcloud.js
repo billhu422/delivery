@@ -117,8 +117,8 @@ router.post('/bgpip/create',function(req,resp){
                 if( order == undefined) {resp.status(400);resp.send('{"code" : -2,"description" : "Not found order."}');return;}
  	        
                 //validate pay status
-                orderStatus = order.note.filter(function(x){return x.text=="Paid"})[0].text;
-                if(orderStatus != "Paid") {resp.status(400);resp.send('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');console.log('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');return;}
+                var textObj = order.note.filter(function(x){return x.text=="Paid"})[0];
+                if( textObj ==undefined )  {resp.status(400);resp.send('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');console.log('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');return;}
 	
 		//delivery instances
                 order.orderItem.forEach(function(item){
