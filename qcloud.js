@@ -127,7 +127,7 @@ router.post('/bgpip/create',function(req,resp){
 			//retrieve itemUserId
 			var itemPartyId = item.product.relatedParty.filter(function(x){return x.role=="Customer"})[0].id;	
 			if(itemPartyId == undefined) {resp.status(400);resp.send('{"code":-4,"description":"Cannot found itemPartyId"}');console.log('{"code":-4,"description":"Cannot found itemPartyId"}');return;}
-			if(item.state != 'Acknowledged' || item.state != "InProgess")  {resp.status(400);resp.send('{"code":-7,"description":"Only Acknowledged or InProgess can be manually modified"}');console.log('{"code":-7,"description":"Only Acknowledged or InProgess can be manually modified"}');return;}
+			if(item.state != 'Acknowledged' && item.state != "InProgess")  {resp.status(400);resp.send('{"code":-7,"description":"Only Acknowledged or InProgess can be manually modified"}');console.log('{"code":-7,"description":"Only Acknowledged or InProgess can be manually modified"}');return;}
                          
                         var provider = item.product.productCharacteristic.filter(function(x){return x.name=="provider"})[0].value;		        
                         var productName = item.product.productCharacteristic.filter(function(x){return x.name=="productname"})[0].value;
