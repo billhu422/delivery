@@ -74,7 +74,7 @@ app.get('/v1/hybrid/instance',function(req, res){
 
 				instances.push(item);
 			});
-			res.send('{"code":0,"instances":['+ JSON.stringify(instances)   +  ']}');
+			res.send('{"code":0,"instances":'+ JSON.stringify(instances)   +  '}');
 		});
        });
 });

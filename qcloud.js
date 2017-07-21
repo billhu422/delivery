@@ -46,6 +46,7 @@ router.post('/cvm',function(req, res) {
 
 router.post('/bgpip/checkCreate',function(req,resp){
     console.log(req.body);
+    if(req.get('Authorization') == undefined) {resp.send('{"code" : -8,"description" : "Need Authorization"}');return;}
     var access_token = req.get('Authorization').split(" ")[1];
     var url = config.oauth.account_server + '/user';
     console.log("url : " + url);
@@ -79,6 +80,8 @@ router.post('/bgpip/checkCreate',function(req,resp){
 }); 
 router.post('/bgpip/create',function(req,resp){
     console.log(req.body);
+    console.log(req.get('Authorization'));
+    if(req.get('Authorization') == undefined) {resp.send('{"code" : -8,"description" : "Need Authorization"}');console.log('{"code" : -8,"description" : "Need Authorization"}');return;}
     var access_token = req.get('Authorization').split(" ")[1];
     var url = config.oauth.account_server + '/user';
     //1. validte customer access token 
@@ -86,7 +89,7 @@ router.post('/bgpip/create',function(req,resp){
     console.log(JSON.stringify(response,4,4));
         if(e) {resp.send(e);return;}
         console.log('Retrieving userid...');
-        if(JSON.parse(response).id == undefined ) {resp.send('{"code" : -1,"description" : "not found user id from idm with access_token"}');return;}
+        if(JSON.parse(response).id == undefined ) {resp.send('{"code" : -1,"description" : "not found user id from idm with access_token"}');console.log('{"code" : -1,"description" : "not found user id from idm with access_token"}');return;}
         //1.0 retrieve userid with access_token
         var userId = JSON.parse(response).id;
 
@@ -110,11 +113,12 @@ router.post('/bgpip/create',function(req,resp){
 		console.log(body);
                 var orders = JSON.parse(body);
                 var order = orders[0];
-                if(order.id == undefined) {resp.send('{"code" : -2,"description" : "Not found order."}');return;}
+	        console.log(order);	
+                if( order == undefined) {resp.send('{"code" : -2,"description" : "Not found order."}');return;}
  	        
                 //validate pay status
                 orderStatus = order.note.filter(function(x){return x.text=="Paid"})[0].text;
-                if(orderStatus != "Paid") {resp.send('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');return;}
+                if(orderStatus != "Paid") {resp.send('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');console.log('{"code":-3,"description":"The order is not paied, cannot  delivery an instance by the order"}');return;}
 	
 		//delivery instances
                 order.orderItem.forEach(function(item){
@@ -122,7 +126,8 @@ router.post('/bgpip/create',function(req,resp){
                 //failed ->hold
 			//retrieve itemUserId
 			var itemPartyId = item.product.relatedParty.filter(function(x){return x.role=="Customer"})[0].id;	
-			if(itemPartyId == undefined) {resp.send('{"code":-4,"description":"Cannot found itemPartyId"}');return;}
+			if(itemPartyId == undefined) {resp.send('{"code":-4,"description":"Cannot found itemPartyId"}');console.log('{"code":-4,"description":"Cannot found itemPartyId"}');return;}
+			if(item.state != 'Acknowledged' || item.state != "InProgess")  {resp.send('{"code":-7,"description":"Only Acknowledged or InProgess can be manually modified"}');console.log('{"code":-7,"description":"Only Acknowledged or InProgess can be manually modified"}');return;}
                          
                         var provider = item.product.productCharacteristic.filter(function(x){return x.name=="provider"})[0].value;		        
                         var productName = item.product.productCharacteristic.filter(function(x){return x.name=="productname"})[0].value;
@@ -217,7 +222,7 @@ router.post('/bgpip/create',function(req,resp){
                                          request.post({
                                                 headers: {'content-type' : 'application/x-www-form-urlencoded'},
                                                 url:     config.dbRest.baseUrl + '/inventory/instance',
-                                                form:    {'orderId':orderId,'orderItemId':item.id,'userId':itemPartyId,'provider':provider,'productName':productName,'instanceId':'006','region':regionValue}
+                                                form:    {'orderId':orderId,'orderItemId':item.id,'userId':itemPartyId,'provider':provider,'productName':productName,'instanceId':'bgpip-000000z1','region':regionValue}
                                                 }, function(writedberr, response, body){
 							if(writedberr) {resp.send(writedberr);
 								//update order status to hold	
