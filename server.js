@@ -50,6 +50,7 @@ app.use('/v1/hybrid/qcloud',qcloud);
 app.use('/v1/hybrid/aliyun',aliyun);
 
 app.get('/v1/hybrid/instance',function(req, res){
+    if(req.get('Authorization') == undefined) {res.status(400);res.send('{"code" : -8,"description" : "Need Authorization"}');console.log('{"code" : -8,"description" : "Need Authorization"}');return;}    
     var access_token = req.get('Authorization').split(" ")[1];
     var url = config.oauth.account_server + '/user';
     oauth_client.get(url, access_token,function(e,response){
