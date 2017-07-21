@@ -53,14 +53,14 @@ app.get('/v1/hybrid/instance',function(req, res){
     var access_token = req.get('Authorization').split(" ")[1];
     var url = config.oauth.account_server + '/user';
     oauth_client.get(url, access_token,function(e,response){
-	if(e) {resp.status(401);resp.send('{"code" : -9,"description" : "invalid auth-token"}');return;}
+	if(e) {res.status(401);res.send('{"code" : -9,"description" : "invalid auth-token"}');return;}
 	var userId = JSON.parse(response).id;
-	if(userId == undefined ) {resp.status(400);resp.send('{"code" : -1,"description" : "not found user id from idm with access_token"}');return;}
+	if(userId == undefined ) {res.status(400);res.send('{"code" : -1,"description" : "not found user id from idm with access_token"}');return;}
 	request.get({
 		headers: {'content-type' : 'application/json'},
 		url:     config.dbRest.baseUrl + '/inventory/instance?userId=' + userId + "&" + querystring.stringify(req.query),
 		}, function(readdberr, response, body){
-			if(readdberr){resp.status(500);resp.send(readdberr);return;}
+			if(readdberr){res.status(500);res.send(readdberr);return;}
 			var instances=[]
 			JSON.parse(body).forEach(function(el){
 				var item = {
